@@ -7,4 +7,4 @@ const hermes = Hermes({
   redisOptions: { ...config.redis },
 });
 
-export default hermes
+export default hermes;
