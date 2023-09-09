@@ -7,6 +7,7 @@ import type {
 import authRoutes from "./components/auth/auth.routes";
 import userRoutes from "./components/user/user.routes";
 import meRoutes from "./components/me/me.routes";
+import hermesRoutes from "./components/hermes/hermes.routes";
 
 import authRequiredHook from "./hooks/authRequired";
 
@@ -17,6 +18,7 @@ export default async function v1Routes(
 ) {
   app.register(authRoutes, { prefix: "/auth" });
   app.register(userRoutes, { prefix: "/user" });
+  app.register(hermesRoutes, { prefix: "/hermes" });
 
   app.register((app, _, done) => {
     app.addHook("preHandler", authRequiredHook);

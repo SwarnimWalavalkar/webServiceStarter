@@ -1,3 +1,5 @@
+import hermes from "../hermes";
+import registerSubscriptions from "../hermes/subscriptions";
 import sleep from "../utils/sleep";
 import type { FastifyInstance } from "fastify";
 
@@ -7,6 +9,9 @@ export default async function loaders(app: FastifyInstance) {
     try {
       await import("../services/redis");
       await import("../services/db");
+      await hermes.connect();
+      await import("../hermes/reply/index");
+      registerSubscriptions();
       break;
     } catch (error) {
       await sleep(5000);
