@@ -66,7 +66,7 @@ export default function Hermes({
           groupName,
           consumerName,
           "BLOCK",
-          1000,
+          200,
           "STREAMS",
           topic,
           ">"
@@ -107,28 +107,29 @@ export default function Hermes({
         .xgroup("CREATE", responseTopic, groupName, "$", "MKSTREAM")
         .catch(() => {});
 
-      const results: string[][] = (await subscriber.xreadgroup(
-        "GROUP",
-        groupName,
-        consumerName,
-        "BLOCK",
-        1000,
-        "STREAMS",
-        responseTopic,
-        ">"
-      )) as string[][];
+      while (true) {
+        const results: string[][] = (await subscriber.xreadgroup(
+          "GROUP",
+          groupName,
+          consumerName,
+          "BLOCK",
+          200,
+          "STREAMS",
+          responseTopic,
+          ">"
+        )) as string[][];
 
-      if (results && results.length) {
-        const [_key, messages] = results[0];
+        if (results && results.length) {
+          const [_key, messages] = results[0];
 
-        const data = JSON.parse(messages[0][1][1]);
-        const msgId = messages[0][0];
+          const data = JSON.parse(messages[0][1][1]);
+          const msgId = messages[0][0];
 
-        await subscriber.xack(durableName, responseTopic, groupName, msgId);
+          await subscriber.xack(durableName, responseTopic, groupName, msgId);
 
-        return data;
+          return data;
+        }
       }
-      return this.request(topic, reqData);
     },
 
     async reply<RequestData, ResponseData>(
