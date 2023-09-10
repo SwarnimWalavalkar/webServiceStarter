@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 // Bus -> For publishing and subscribing to messages
 // Transport -> For Req/Res
 
-export interface Transport {
+export interface ITransport {
   request<RequestData, ResponseData>(
     topic: string,
     reqData: RequestData
@@ -19,7 +19,7 @@ export interface Transport {
   ): void | Promise<void>;
 }
 
-export interface Bus {
+export interface IBus {
   subscribe<T>(
     topic: string,
     callback: (msgData: { data: T; msgId: string }) => Promise<void> | unknown
@@ -27,10 +27,11 @@ export interface Bus {
   publish<T>(topic: string, data: T): void | Promise<void>;
 }
 
-export interface Hermes {
+export interface IHermes {
   connect(): void | Promise<void>;
-  bus: Bus;
-  transport: Transport;
+  disconnect(): void | Promise<void>;
+  bus: IBus;
+  transport: ITransport;
 }
 
 export default function Hermes({
@@ -39,62 +40,140 @@ export default function Hermes({
 }: {
   durableName: string;
   redisOptions: RedisOptions;
-}) {
+}): IHermes {
   let subscriber: Redis;
   let publisher: Redis;
 
   const consumerName = uuidv4();
   const groupName = durableName;
 
-  async function connect() {
+  const connect = async () => {
     subscriber = new Redis(redisOptions);
     publisher = new Redis(redisOptions);
+  };
+
+  async function disconnect() {
+    subscriber.disconnect();
+    publisher.disconnect();
   }
 
-  const bus: Bus = {
+  async function addToStream(streamName: string, ...args: Array<any>) {
+    try {
+      await publisher.xadd(streamName, "*", ...args);
+    } catch (error: any) {
+      console.error(`[HERMES] Error adding to stream: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async function ackMessages(
+    streamName: string,
+    groupName: string,
+    ...messageIds: Array<string>
+  ) {
+    try {
+      await subscriber.xack(streamName, groupName, ...messageIds);
+    } catch (error: any) {
+      console.error(`[HERMES] Error acknowledging messages: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async function createConsumerGroup(streamName: string, groupName: string) {
+    try {
+      await subscriber.xgroup("CREATE", streamName, groupName, "0", "MKSTREAM");
+    } catch (error: any) {
+      if (error.message.includes("BUSYGROUP")) {
+        return;
+      }
+      console.error(
+        `[HERMES] Error while creating consumer group: ${error.message}`
+      );
+      throw error;
+    }
+  }
+
+  async function readStreamAsConsumerGroup(
+    streamName: string,
+    count: number = 1,
+    blockMs: number = 1,
+    group: string = groupName,
+    consumer: string = consumerName
+  ) {
+    try {
+      const results: string[][] = (await subscriber.xreadgroup(
+        "GROUP",
+        groupName,
+        consumerName,
+        "COUNT",
+        count,
+        "BLOCK",
+        blockMs,
+        "STREAMS",
+        streamName,
+        ">"
+      )) as string[][];
+
+      if (results && results.length) {
+        const [_key, messages] = results[0];
+
+        return messages;
+      }
+
+      return null;
+    } catch (error: any) {
+      if (error.message.includes("NOGROUP")) {
+        console.log(`${error.message} ...CREATING GROUP`);
+        await createConsumerGroup(streamName, group);
+        return null;
+      }
+      console.error(`[HERMES] Error reading stream: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async function* getStreamMessageGenerator(streamName: string, count: number) {
+    while (true) {
+      const results = await readStreamAsConsumerGroup(streamName, count);
+
+      if (!results || !results?.length) {
+        continue;
+      }
+
+      for (const message of results) {
+        yield message;
+      }
+    }
+  }
+
+  const bus: IBus = {
     async subscribe<T>(
       topic: string,
       callback: (msgData: { data: T; msgId: string }) => Promise<void>
     ): Promise<void> {
       try {
-        subscriber
-          .xgroup("CREATE", topic, groupName, "$", "MKSTREAM")
-          .catch(() => {});
+        const generator = getStreamMessageGenerator(topic, 10);
 
-        const results: string[][] = (await subscriber.xreadgroup(
-          "GROUP",
-          groupName,
-          consumerName,
-          "BLOCK",
-          200,
-          "STREAMS",
-          topic,
-          ">"
-        )) as string[][];
+        for await (const message of generator) {
+          const data = JSON.parse(message[1][1]);
+          const msgId = message[0];
 
-        if (results && results.length) {
-          const [_key, messages] = results[0];
-
-          const data = JSON.parse(messages[0][1][1]);
-          const msgId = messages[0][0];
-
-          await subscriber.xack(durableName, topic, groupName, msgId);
+          /** @TODO Remove this and require messages to be manually acknowledged */
+          await ackMessages(topic, groupName, msgId);
 
           await callback({ data, msgId });
         }
-
-        await this.subscribe<T>(topic, callback);
       } catch (error) {
-        console.error("[CONSUMER GROUP ERROR]", error);
-        process.exit(1);
+        console.error("[HERMES] Consumer Group Error:", error);
+        throw error;
       }
     },
     async publish<T>(topic: string, data: T): Promise<void> {
-      await publisher.xadd(topic, "*", "data", JSON.stringify(data));
+      await addToStream(topic, "data", JSON.stringify(data));
     },
   };
 
-  const transport: Transport = {
+  const transport: ITransport = {
     async request<RequestData, ResponseData>(
       topic: string,
       reqData: RequestData
@@ -103,32 +182,22 @@ export default function Hermes({
 
       await bus.publish<RequestData>(topic, reqData);
 
-      subscriber
-        .xgroup("CREATE", responseTopic, groupName, "$", "MKSTREAM")
-        .catch(() => {});
+      const responseGenerator = getStreamMessageGenerator(responseTopic, 1);
 
-      while (true) {
-        const results: string[][] = (await subscriber.xreadgroup(
-          "GROUP",
-          groupName,
-          consumerName,
-          "BLOCK",
-          200,
-          "STREAMS",
-          responseTopic,
-          ">"
-        )) as string[][];
+      const messageResp = await responseGenerator.next();
 
-        if (results && results.length) {
-          const [_key, messages] = results[0];
+      if (!messageResp.done && messageResp.value) {
+        const message = messageResp.value;
 
-          const data = JSON.parse(messages[0][1][1]);
-          const msgId = messages[0][0];
+        const data = JSON.parse(message[1][1]);
+        const msgId = message[0];
 
-          await subscriber.xack(durableName, responseTopic, groupName, msgId);
+        await ackMessages(responseTopic, groupName, msgId);
 
-          return data;
-        }
+        return data;
+      } else {
+        console.error("[HERMES] Unexpected Error while making a request");
+        throw Error("Unexpected Error while making a request");
       }
     },
 
@@ -141,14 +210,23 @@ export default function Hermes({
     ): Promise<void> {
       await bus.subscribe<RequestData>(topic, async ({ msgId, data }) => {
         const res = await fn({ reqData: data, msgId });
-        await subscriber.xack(durableName, topic, groupName, msgId);
-        await bus.publish<ResponseData>(`${topic}-res`, res);
+
+        await ackMessages(topic, groupName, msgId);
+
+        await addToStream(
+          `${topic}-res`,
+          "data",
+          JSON.stringify(res),
+          "reqMsgId",
+          msgId
+        );
       });
     },
   };
 
   return {
     connect,
+    disconnect,
     bus,
     transport,
   };

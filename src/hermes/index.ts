@@ -1,8 +1,7 @@
 import config from "../config";
-import Hermes from "../lib/hermes";
-import sleep from "../utils/sleep";
+import Hermes, { IHermes } from "../lib/hermes";
 
-const hermes = Hermes({
+const hermes: IHermes = Hermes({
   durableName: "testService1",
   redisOptions: { ...config.redis },
 });
