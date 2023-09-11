@@ -28,6 +28,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - db:/var/lib/postgresql/data
   redis:
     image: redis:alpine
     restart: always
@@ -39,3 +41,9 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
+    volumes:
+      - redis:/data
+
+volumes:
+  db:
+  redis:

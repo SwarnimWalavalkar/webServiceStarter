@@ -11,8 +11,10 @@
     "db:check": "drizzle-kit check:pg",
     "db:drop": "drizzle-kit drop",
     "db:migrate": "npx tsx ./migrate.ts",
-    "docker:down": "docker compose -f docker/compose.yml down -v --remove-orphans",
-    "docker:restart": "docker compose -f docker/compose.yml down -v --remove-orphans && docker compose -f docker/compose.yml up -d"
+    "docker:down": "docker compose -f docker/compose.yml down",
+    "docker:up": "docker compose -f docker/compose.yml up -d",
+    "docker:kill": "docker compose -f docker/compose.yml down -v --remove-orphans",
+    "docker:restart": "pnpm run docker:down && pnpm run docker:up"
   },
   "jest": {
     "preset": "ts-jest",
