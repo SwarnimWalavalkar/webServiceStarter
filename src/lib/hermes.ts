@@ -2,9 +2,9 @@ import Redis, { RedisOptions } from "ioredis";
 import { v4 as uuidv4 } from "uuid";
 
 // Bus -> For publishing and subscribing to messages
-// Transport -> For Req/Res
+// Service -> For Req/Res
 
-export interface ITransport {
+export interface IService {
   request<RequestData, ResponseData>(
     topic: string,
     reqData: RequestData
@@ -31,8 +31,10 @@ export interface IHermes {
   connect(): void | Promise<void>;
   disconnect(): void | Promise<void>;
   bus: IBus;
-  transport: ITransport;
+  service: IService;
 }
+
+const KEY_PREFIX = "hermes:";
 
 export default function Hermes({
   durableName,
@@ -48,8 +50,8 @@ export default function Hermes({
   const groupName = durableName;
 
   const connect = async () => {
-    subscriber = new Redis(redisOptions);
-    publisher = new Redis(redisOptions);
+    subscriber = new Redis({ ...redisOptions, keyPrefix: KEY_PREFIX });
+    publisher = new Redis({ ...redisOptions, keyPrefix: KEY_PREFIX });
   };
 
   async function disconnect() {
@@ -81,7 +83,7 @@ export default function Hermes({
 
   async function createConsumerGroup(streamName: string, groupName: string) {
     try {
-      await subscriber.xgroup("CREATE", streamName, groupName, "0", "MKSTREAM");
+      await subscriber.xgroup("CREATE", `${KEY_PREFIX}${streamName}`, groupName, "0", "MKSTREAM");
     } catch (error: any) {
       if (error.message.includes("BUSYGROUP")) {
         return;
@@ -103,8 +105,8 @@ export default function Hermes({
     try {
       const results: string[][] = (await subscriber.xreadgroup(
         "GROUP",
-        groupName,
-        consumerName,
+        group,
+        consumer,
         "COUNT",
         count,
         "BLOCK",
@@ -173,7 +175,7 @@ export default function Hermes({
     },
   };
 
-  const transport: ITransport = {
+  const service: IService = {
     async request<RequestData, ResponseData>(
       topic: string,
       reqData: RequestData
@@ -228,6 +230,6 @@ export default function Hermes({
     connect,
     disconnect,
     bus,
-    transport,
+    service,
   };
 }

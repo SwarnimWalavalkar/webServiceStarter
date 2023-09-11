@@ -17,7 +17,7 @@ export default withZod({
       name: string;
     };
 
-    const { message }: SayHelloResponse = await hermes.transport.request<
+    const { message }: SayHelloResponse = await hermes.service.request<
       SayHelloRequest,
       SayHelloResponse
     >("say-hello", { name });

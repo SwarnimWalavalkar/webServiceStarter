@@ -8,7 +8,7 @@ export interface SayHelloResponse {
   message: string;
 }
 
-hermes.transport.reply<SayHelloRequest, SayHelloResponse>(
+hermes.service.reply<SayHelloRequest, SayHelloResponse>(
   "say-hello",
   async ({ reqData, msgId }) => {
     console.log("REQUEST_RECEIVED", msgId);
