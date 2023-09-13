@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "tsc",
+    "check": "tsc --noEmit",
     "dev": "NODE_ENV=development DEBUG=1 npx ts-node-dev src/index.ts | npx pino-pretty",
     "start": "node dist/index.js",
     "test": "jest --no-cache",

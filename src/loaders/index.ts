@@ -7,10 +7,10 @@ export default async function loaders(app: FastifyInstance) {
   let retries = 1;
   while (retries <= 5) {
     try {
-      await import("../services/redis");
-      await import("../services/db");
+      await import("../services/redis.js");
+      await import("../services/db.js");
       await hermes.connect();
-      await import("../hermes/reply/index");
+      await import("../hermes/reply/index.js");
       registerSubscriptions();
       break;
     } catch (error) {
