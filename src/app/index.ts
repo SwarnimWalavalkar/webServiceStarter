@@ -3,8 +3,6 @@ import helmet from "@fastify/helmet";
 import sensible from "@fastify/sensible";
 import fjwt from "@fastify/jwt";
 import cookie, { FastifyCookieOptions } from "@fastify/cookie";
-import swagger from "@fastify/swagger";
-import cors from "@fastify/cors";
 
 import {
   uncaughtExceptionHandler,
@@ -94,7 +92,7 @@ app.addHook("onResponse", (req, reply, done) => {
   done();
 });
 
-app.register(v1Routes, { prefix: "/api/v1/fastify-starter" });
+app.register(v1Routes, { prefix: "/api/v1/starter-service" });
 
 app.get("/ping", (req, reply) => {
   reply.status(200).send({

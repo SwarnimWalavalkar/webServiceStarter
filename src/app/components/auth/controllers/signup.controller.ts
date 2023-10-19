@@ -1,9 +1,11 @@
 import withZod from "../../../util/withZod";
-import db from "../../../../services/db";
+import { db } from "../../../../services/db";
 import { User, UserInsert, users } from "../../../../schema/user";
 import { sql } from "drizzle-orm";
 import * as argon2 from "argon2";
 import { z } from "zod";
+import { userSignupEvent } from "../../../../hermes/events/userSignup";
+import { request } from "http";
 
 export default withZod({
   schema: {
@@ -40,14 +42,23 @@ export default withZod({
 
     const passHash = await argon2.hash(password);
 
-    const newUser: UserInsert = {
+    const userAttrs: UserInsert = {
       username,
       name,
       email,
       password: passHash,
     };
 
-    await db.insert(users).values(newUser);
+    const [newUser] = await db
+      .insert(users)
+      .values(userAttrs)
+      .returning({ id: users.id });
+
+    await userSignupEvent.publish({
+      userId: Number(newUser?.id),
+      username: username,
+      userAgent: req.headers["user-agent"] ?? "",
+    });
 
     return reply.status(201).send({ success: true });
   },

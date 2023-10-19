@@ -7,6 +7,7 @@ An ever evolving starting point for wonderful ideas...
 - Fastify
 - Zod
 - Drizzle
+- [Hermes](https://github.com/SwarnimWalavalkar/hermes) (my custom messaging library)
 - Postgres
 - Redis
 
@@ -41,5 +42,3 @@ pnpm run dev
 ```
 
 ---
-
-> Note: the tests dont work and I'm too lazy to fix 'em

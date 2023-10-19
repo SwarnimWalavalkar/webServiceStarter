@@ -1,5 +1,5 @@
-import hermes from "../../../../hermes";
-import { SayHelloRequest, SayHelloResponse } from "../../../../hermes/reply";
+import { userSignupEvent } from "../../../../hermes/events/userSignup";
+import { primeNumberService } from "../../../../hermes/reply/getPrimeNumbers";
 import withZod from "../../../util/withZod";
 import { z } from "zod";
 
@@ -17,13 +17,16 @@ export default withZod({
       name: string;
     };
 
-    const { message }: SayHelloResponse = await hermes.service.request<
-      SayHelloRequest,
-      SayHelloResponse
-    >("say-hello", { name });
+    await userSignupEvent.publish({
+      userId: 124,
+      username: name,
+      userAgent: "Chrome 118.0.0.0 / Mac OS X 10.15.7",
+    });
 
-    await hermes.bus.publish<SayHelloRequest>("user-greeted-event", { name });
+    const { numbers: primeNumbers } = await primeNumberService.request({
+      max: 100,
+    });
 
-    return reply.status(200).send({ message });
+    return reply.status(200).send({ primeNumbers });
   },
 });

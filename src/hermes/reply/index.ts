@@ -1,17 +1,5 @@
-import hermes from "..";
+import { registerGetPrimeNumbersReply } from "./getPrimeNumbers";
 
-export interface SayHelloRequest {
-  name: string;
+export function registerReplies() {
+  registerGetPrimeNumbersReply();
 }
-
-export interface SayHelloResponse {
-  message: string;
-}
-
-hermes.service.reply<SayHelloRequest, SayHelloResponse>(
-  "say-hello",
-  async ({ reqData, msgId }) => {
-    console.log("REQUEST_RECEIVED", msgId);
-    return { message: `Hello, ${reqData.name}!` };
-  }
-);

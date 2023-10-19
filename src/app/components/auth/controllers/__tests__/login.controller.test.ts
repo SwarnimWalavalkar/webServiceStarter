@@ -1,10 +1,11 @@
 import app from "../../../..";
+import { it, describe, expect, beforeAll } from "vitest";
 
 describe("POST /api/v1/fastify-service/auth/login", () => {
   beforeAll(async () => {
     await app.inject({
       method: "POST",
-      path: "/api/v1/fastify-starter/auth/signup",
+      path: "/api/v1/starter-service/auth/signup",
       payload: {
         email: "test@test.com",
         username: "test",
@@ -17,7 +18,7 @@ describe("POST /api/v1/fastify-service/auth/login", () => {
   it("should respond with a 200 on successful login", async () => {
     const response = await app.inject({
       method: "POST",
-      path: "/api/v1/fastify-starter/auth/login",
+      path: "/api/v1/starter-service/auth/login",
       payload: {
         username_or_email: "test@test.com",
         password: "testpass",
@@ -32,7 +33,7 @@ describe("POST /api/v1/fastify-service/auth/login", () => {
   it("should respond with a 400 given an incorrect password", async () => {
     const response = await app.inject({
       method: "POST",
-      path: "/api/v1/fastify-starter/auth/login",
+      path: "/api/v1/starter-service/auth/login",
       payload: {
         username_or_email: "test@test.com",
         password: "wrongpass",

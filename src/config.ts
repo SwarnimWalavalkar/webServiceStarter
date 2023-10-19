@@ -3,10 +3,10 @@ export default {
   db: {
     connectionURI:
       process.env.DB_URL ||
-      "postgresql://postgres:postgres@localhost:5432/fastifystarter",
+      "postgresql://postgres:postgres@localhost:5432/starter-service",
   },
   jwt: {
-    tokenSecret: process.env.JWT_TOKEN_SECRET || "theCakeIsALie",
+    tokenSecret: process.env.JWT_TOKEN_SECRET || "supersecretrandomstring",
   },
   redis: {
     host: process.env.REDIS_HOST || "0.0.0.0",

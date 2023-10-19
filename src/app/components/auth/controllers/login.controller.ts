@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { User, users } from "../../../../schema/user";
-import db from "../../../../services/db";
+import { db } from "../../../../services/db";
 import * as argon2 from "argon2";
 import withZod from "../../../util/withZod";
 import { z } from "zod";
@@ -27,11 +27,11 @@ export default withZod({
         sql`${users.username} = ${username_or_email} or ${users.email} = ${username_or_email}`
       );
 
-    if (foundUsers.length < 0) {
+    const [foundUser] = foundUsers;
+
+    if (foundUsers.length < 0 || !foundUser) {
       return reply.notFound("INVALID_USERNAME_OR_EMAIL");
     }
-
-    const [foundUser] = foundUsers;
 
     const match = await argon2.verify(foundUser.password, password);
 

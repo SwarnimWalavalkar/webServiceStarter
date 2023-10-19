@@ -1,10 +1,14 @@
 import { drizzle, PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import postgres, { Sql } from "postgres";
 import config from "../config";
 
-const queryClient = postgres(config.db.connectionURI);
-export const db: PostgresJsDatabase = drizzle(queryClient, {
-  logger: true,
-});
+export let dbConnection: Sql;
+export let db: PostgresJsDatabase;
 
-export default db;
+export const setupDB = async () => {
+  dbConnection = postgres(config.db.connectionURI);
+
+  db = drizzle(dbConnection, {
+    logger: true,
+  });
+};

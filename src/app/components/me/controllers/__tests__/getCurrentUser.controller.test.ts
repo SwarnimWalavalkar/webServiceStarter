@@ -1,4 +1,5 @@
 import app from "../../../..";
+import { it, describe, expect, beforeAll } from "vitest";
 
 describe("GET /api/v1/fastify-service/me/", () => {
   let token: string;
@@ -6,7 +7,7 @@ describe("GET /api/v1/fastify-service/me/", () => {
   beforeAll(async () => {
     await app.inject({
       method: "POST",
-      path: "/api/v1/fastify-starter/auth/signup",
+      path: "/api/v1/starter-service/auth/signup",
       payload: {
         email: "test@test.com",
         username: "test",
@@ -18,7 +19,7 @@ describe("GET /api/v1/fastify-service/me/", () => {
     const respData = await (
       await app.inject({
         method: "POST",
-        path: "/api/v1/fastify-starter/auth/login",
+        path: "/api/v1/starter-service/auth/login",
         payload: {
           username_or_email: "test@test.com",
           password: "testpass",
@@ -32,7 +33,7 @@ describe("GET /api/v1/fastify-service/me/", () => {
   it("should respond with the currently logged in user", async () => {
     const response = await app.inject({
       method: "GET",
-      path: "/api/v1/fastify-starter/me/",
+      path: "/api/v1/starter-service/me/",
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -45,7 +46,7 @@ describe("GET /api/v1/fastify-service/me/", () => {
   it("should with a 401 without the token", async () => {
     const response = await app.inject({
       method: "GET",
-      path: "/api/v1/fastify-starter/me/",
+      path: "/api/v1/starter-service/me/",
     });
 
     expect(response.statusCode).toBe(401);

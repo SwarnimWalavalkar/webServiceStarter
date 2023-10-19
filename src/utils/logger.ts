@@ -2,7 +2,7 @@ import pino from "pino";
 import als from "../lib/als";
 
 const logger = pino({
-  name: "fastify-starter",
+  name: "starter-service",
   mixin() {
     return { traceId: als.getStore() };
   },
@@ -19,6 +19,7 @@ const logger = pino({
       "*.body.password",
       "event.data.password",
       "req.headers['authorization']",
+      "req.cookies['authorization']",
     ],
     censor: "**SENSETIVE INFORMATION**",
   },

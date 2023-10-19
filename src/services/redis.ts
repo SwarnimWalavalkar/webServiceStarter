@@ -3,9 +3,11 @@ import config from "../config";
 import logger from "../utils/logger";
 
 const connections: { [name: string]: Redis } = {};
+export let redis: Redis;
 
-export function getPrefixedClient(keyPrefix: string) {
-  if (connections[keyPrefix]) return connections[keyPrefix];
+export function getPrefixedClient(keyPrefix: string): Redis {
+  if (connections[keyPrefix]) return connections[keyPrefix] as Redis;
+
   const client = new Redis({
     ...config.redis,
     enableOfflineQueue: false,
@@ -30,4 +32,4 @@ export function getPrefixedClient(keyPrefix: string) {
   return client;
 }
 
-export default getPrefixedClient("server:");
+export const setupRedis = async () => (redis = getPrefixedClient("server:"));

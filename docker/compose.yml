@@ -1,6 +1,6 @@
 version: "3.9"
 
-name: "fastifystarter"
+name: "starter-service"
 services:
   postgres:
     image: postgres:alpine
@@ -18,7 +18,7 @@ services:
       ]
     restart: always
     environment:
-      POSTGRES_DB: fastifystarter
+      POSTGRES_DB: starter-service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:

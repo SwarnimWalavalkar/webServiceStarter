@@ -1,9 +1,26 @@
 import app from "../app/index";
 import loaders from "../loaders";
+import { db } from "../services/db";
+import sleep from "../utils/sleep";
 
-beforeAll(async () => {
-  console.log("BEFOREALL TESTS");
+import teardownApp from "../utils/teardown";
+
+let teardownHappened = false;
+
+export async function setup() {
+  console.log("Setting up tests");
+
+  console.log("DB BEFORE ->", db) ;
   await loaders(app);
-});
 
-jest.setTimeout(30 * 1000);
+  console.log("DB AFTER ->", db);
+}
+
+export async function teardown() {
+  console.log("Tearing down tests");
+
+  if (teardownHappened) throw new Error("teardown called twice");
+  teardownHappened = true;
+
+  await teardownApp();
+}
