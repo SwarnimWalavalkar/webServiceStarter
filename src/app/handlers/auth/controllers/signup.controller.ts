@@ -1,11 +1,10 @@
 import withZod from "../../../util/withZod";
-import { db } from "../../../../services/db";
+import { db } from "../../../../dependencies/db";
 import { User, UserInsert, users } from "../../../../schema/user";
 import { sql } from "drizzle-orm";
 import * as argon2 from "argon2";
 import { z } from "zod";
 import { userSignupEvent } from "../../../../hermes/events/userSignup";
-import { request } from "http";
 
 export default withZod({
   schema: {

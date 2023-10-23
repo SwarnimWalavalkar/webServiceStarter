@@ -1,4 +1,4 @@
-import { redis } from "../../services/redis";
+import { redis } from "../../dependencies/redis";
 
 type withCahcePropType<T> = {
   key: string;

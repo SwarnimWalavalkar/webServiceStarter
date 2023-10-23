@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import { User, users } from "../../../../schema/user";
-import { db } from "../../../../services/db";
+import { db } from "../../../../dependencies/db";
 import * as argon2 from "argon2";
 import withZod from "../../../util/withZod";
 import { z } from "zod";

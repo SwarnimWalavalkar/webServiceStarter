@@ -1,8 +1,8 @@
 import hermes from "../hermes";
 import { registerSubscriptions } from "../hermes/events";
 import { registerReplies } from "../hermes/reply";
-import { setupDB } from "../services/db";
-import { setupRedis } from "../services/redis";
+import { setupDB } from "../dependencies/db";
+import { setupRedis } from "../dependencies/redis";
 import sleep from "../utils/sleep";
 
 export default async function loaders() {

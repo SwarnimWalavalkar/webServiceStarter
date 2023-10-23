@@ -4,10 +4,10 @@ import type {
   FastifyPluginOptions,
 } from "fastify";
 
-import authRoutes from "./components/auth/auth.routes";
-import userRoutes from "./components/user/user.routes";
-import meRoutes from "./components/me/me.routes";
-import hermesRoutes from "./components/hermes/hermes.routes";
+import authRoutes from "./handlers/auth/auth.routes";
+import userRoutes from "./handlers/user/user.routes";
+import meRoutes from "./handlers/me/me.routes";
+import hermesRoutes from "./handlers/hermes/hermes.routes";
 
 import authRequiredHook from "./hooks/authRequired";
 
