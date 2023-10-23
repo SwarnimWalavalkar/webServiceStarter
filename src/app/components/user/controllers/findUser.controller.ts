@@ -31,7 +31,7 @@ export default withZod({
           sql`${users.username} = ${username_or_email} or ${users.email} = ${username_or_email}`
         );
 
-    if (foundUsers.length < 0) {
+    if (!foundUsers.length) {
       return reply.notFound("INVALID_USERNAME_OR_EMAIL");
     }
 

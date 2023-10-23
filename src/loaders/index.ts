@@ -4,9 +4,8 @@ import { registerReplies } from "../hermes/reply";
 import { setupDB } from "../services/db";
 import { setupRedis } from "../services/redis";
 import sleep from "../utils/sleep";
-import type { FastifyInstance } from "fastify";
 
-export default async function loaders(app: FastifyInstance) {
+export default async function loaders() {
   let retries = 1;
   while (retries <= 5) {
     try {

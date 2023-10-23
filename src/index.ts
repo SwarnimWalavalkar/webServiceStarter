@@ -19,7 +19,7 @@ closeWithGrace({ delay: 10000 }, async ({ signal, err }) => {
 });
 
 async function startServer() {
-  await loaders(app);
+  await loaders();
   const port = config.port;
 
   app.listen({ port: Number(port), host: "0.0.0.0" }, (err, address) => {

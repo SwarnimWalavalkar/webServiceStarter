@@ -16,25 +16,23 @@ describe("GET /api/v1/fastify-service/me/", () => {
       },
     });
 
-    const respData = await (
-      await app.inject({
-        method: "POST",
-        path: "/api/v1/starter-service/auth/login",
-        payload: {
-          username_or_email: "test@test.com",
-          password: "testpass",
-        },
-      })
-    ).json();
+    const respData = await app.inject({
+      method: "POST",
+      path: "/api/v1/starter-service/auth/login",
+      payload: {
+        username_or_email: "test@test.com",
+        password: "testpass",
+      },
+    });
 
-    token = respData.token;
+    token = String(respData.cookies[0]!.value);
   });
 
   it("should respond with the currently logged in user", async () => {
     const response = await app.inject({
       method: "GET",
       path: "/api/v1/starter-service/me/",
-      headers: { Authorization: `Bearer ${token}` },
+      cookies: { Authorization: token },
     });
 
     const data = await response.json();
