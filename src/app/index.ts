@@ -14,6 +14,7 @@ import v1Routes from "./v1";
 import { JWT } from "@fastify/jwt";
 import config from "../config";
 import { User } from "../schema/user";
+import { APIError } from "../shared/errors";
 
 process.on("uncaughtException", uncaughtExceptionHandler);
 process.on("unhandledRejection", unhandledRejectionHandler);
@@ -98,13 +99,19 @@ app.get("/ping", (_req, reply) => {
   reply.status(200).send("PONG");
 });
 
-app.setErrorHandler(function (error, _req, reply) {
-  if (reply.raw.statusCode === 500) {
-    logger.error({
-      err: error,
-    });
-    reply.send(new Error("Something went wrong"));
+app.setErrorHandler(function (error: APIError, _req, reply) {
+  if (error instanceof APIError) {
+    return reply.status(error.status).send({ error });
   } else {
+    if (reply.raw.statusCode === 500) {
+      logger.error({
+        err: error,
+      });
+
+      const wrappedError = new APIError();
+
+      return reply.status(wrappedError.status).send({ error: wrappedError });
+    }
     reply.send(error);
   }
 });

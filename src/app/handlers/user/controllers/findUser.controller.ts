@@ -1,8 +1,7 @@
-import { sql } from "drizzle-orm";
-import { User, users } from "../../../../schema/user";
-import { db } from "../../../../dependencies/db";
 import withZod from "../../../util/withZod";
 import { z } from "zod";
+import { getUserByUsernameOrEmail } from "../../../services/user/user.service";
+import { NotFoundError } from "../../../../shared/errors";
 
 export default withZod({
   schema: {
@@ -14,28 +13,23 @@ export default withZod({
   },
 
   async handler(req, reply) {
-    const { username_or_email, password } = req.query as {
+    const { username_or_email } = req.query as {
       username_or_email: string;
-      password: string;
     };
 
-    const foundUsers: Array<Pick<User, "name" | "username" | "email">> =
-      await db
-        .select({
-          name: users.name,
-          username: users.username,
-          email: users.email,
-        })
-        .from(users)
-        .where(
-          sql`${users.username} = ${username_or_email} or ${users.email} = ${username_or_email}`
-        );
+    const foundUserRes = await getUserByUsernameOrEmail(username_or_email);
 
-    if (!foundUsers.length) {
-      return reply.notFound("INVALID_USERNAME_OR_EMAIL");
+    if (!foundUserRes.ok) {
+      throw new NotFoundError("Invalid username or email");
     }
 
-    const [user] = foundUsers;
+    const {
+      id: _id,
+      password: _password,
+      created_at: _created_at,
+      updated_at: _updated_at,
+      ...user
+    } = foundUserRes.value;
 
     return reply.send({ user });
   },

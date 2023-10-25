@@ -1,4 +1,8 @@
-import { InferInsertModel, InferSelectModel } from "drizzle-orm";
+import {
+  InferInsertModel,
+  InferSelectModel,
+  getTableColumns,
+} from "drizzle-orm";
 import { serial, text, timestamp, pgTable } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -18,3 +22,27 @@ export const users = pgTable("users", {
 
 export type User = InferSelectModel<typeof users>;
 export type UserInsert = InferInsertModel<typeof users>;
+
+export type UserAttributes = Omit<
+  User,
+  "id" | "password" | "created_at" | "updated_at"
+>;
+
+export const userAttrPartialSelectColumns: {
+  [k in keyof UserAttributes]: true;
+} = {
+  name: true,
+  username: true,
+  email: true,
+  roles: true,
+} as const;
+
+const {
+  id: _id,
+  password: _password,
+  created_at: _created_at,
+  updated_at: _updated_at,
+  ...restUserCols
+} = getTableColumns(users);
+
+export const userAttrReturningColumns = restUserCols;

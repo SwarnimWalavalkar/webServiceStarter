@@ -1,9 +1,8 @@
-import { sql } from "drizzle-orm";
-import { User, users } from "../../../../schema/user";
-import { db } from "../../../../dependencies/db";
 import * as argon2 from "argon2";
 import withZod from "../../../util/withZod";
 import { z } from "zod";
+import { getUserByUsernameOrEmail } from "../../../services/user/user.service";
+import { BadRequest, NotFoundError } from "../../../../shared/errors";
 
 export default withZod({
   schema: {
@@ -20,24 +19,23 @@ export default withZod({
       password: string;
     };
 
-    const foundUsers: Array<User> = await db
-      .select()
-      .from(users)
-      .where(
-        sql`${users.username} = ${username_or_email} or ${users.email} = ${username_or_email}`
-      );
+    const foundUserRes = await getUserByUsernameOrEmail(username_or_email);
 
-    const [foundUser] = foundUsers;
-
-    if (foundUsers.length < 0 || !foundUser) {
-      return reply.notFound("INVALID_USERNAME_OR_EMAIL");
+    if (!foundUserRes.ok) {
+      throw new NotFoundError("INVALID_USERNAME_OR_EMAIL");
     }
 
-    const match = await argon2.verify(foundUser.password, password);
+    const match = await argon2.verify(foundUserRes.value.password, password);
 
-    if (!match) return reply.badRequest("INVALID_CREDENTIALS");
+    if (!match) throw new BadRequest("INVALID_CREDENTIALS");
 
-    const { password: _, ...user } = foundUser;
+    const {
+      id: _id,
+      password: _password,
+      created_at: _created_at,
+      updated_at: _updated_at,
+      ...user
+    } = foundUserRes.value;
 
     const token = req.jwt.sign(user);
 

@@ -5,6 +5,11 @@ import { sql } from "drizzle-orm";
 import * as argon2 from "argon2";
 import { z } from "zod";
 import { userSignupEvent } from "../../../../hermes/events/userSignup";
+import {
+  createUser,
+  getUserByUsernameOrEmail,
+} from "../../../services/user/user.service";
+import { BadRequest } from "../../../../shared/errors";
 
 export default withZod({
   schema: {
@@ -30,13 +35,10 @@ export default withZod({
       password: string;
     };
 
-    const foundUsers: Array<User> = await db
-      .select()
-      .from(users)
-      .where(sql`${users.username} = ${username} or ${users.email} = ${email}`);
+    const foundUserRes = await getUserByUsernameOrEmail(email);
 
-    if (foundUsers.length > 0) {
-      return reply.conflict("USERNAME_OR_EMAIL_ALREADY_EXISTS");
+    if (foundUserRes.ok) {
+      throw new BadRequest("USER_ALREADY_EXISTS");
     }
 
     const passHash = await argon2.hash(password);
@@ -48,13 +50,14 @@ export default withZod({
       password: passHash,
     };
 
-    const [newUser] = await db
-      .insert(users)
-      .values(userAttrs)
-      .returning({ id: users.id });
+    const newUserRes = await createUser(userAttrs);
+
+    if (!newUserRes.ok) {
+      throw newUserRes.error;
+    }
 
     await userSignupEvent.publish({
-      userId: Number(newUser?.id),
+      userId: Number(newUserRes.value.id),
       username: username,
       userAgent: req.headers["user-agent"] ?? "",
     });
