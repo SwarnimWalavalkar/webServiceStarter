@@ -1,13 +1,13 @@
 # 🚀 An opinionated backend web service scaffolding
 
-An ever evolving starting point for wonderful ideas...✨
+An ever evolving starting point for wonderful ideas... ✨
 
 ## Tools used
 
 - [Fastify](https://github.com/fastify/fastify)
 - [Zod](https://github.com/colinhacks/zod)
 - [Drizzle](https://github.com/drizzle-team/drizzle-orm)
-- [Hermes](https://github.com/SwarnimWalavalkar/hermes)
+- [Hermes](https://github.com/SwarnimWalavalkar/hermes) (a custom-built messaging library)
 - [Postgres](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
 
@@ -17,13 +17,13 @@ An ever evolving starting point for wonderful ideas...✨
 pnpm i
 ```
 
-Running dependencies
+Run dependencies
 
 ```
-docker compose -f docker/compose.yml up -d
+pnpm run docker:up
 ```
 
-Applying database migrations
+Apply database migrations
 
 ```
 pnpm run db:migrate

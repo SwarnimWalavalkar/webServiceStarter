@@ -1,9 +1,13 @@
+//@ts-nocheck
+
 export default {
+  name: "starter-service",
   port: process.env.PORT || 4000,
   db: {
-    connectionURI:
-      process.env.DB_URL ||
-      "postgresql://postgres:postgres@localhost:5432/starter-service",
+    user: process.env.DB_USER || "postgres",
+    password: process.env.DB_PASSWORD || "postgres",
+    host: process.env.DB_HOST || "localhost",
+    port: Number(process.env.DB_PORT) || 5432,
   },
   jwt: {
     tokenSecret: process.env.JWT_TOKEN_SECRET || "supersecretrandomstring",
@@ -13,4 +17,4 @@ export default {
     port: Number(process.env.REDIS_PORT) || 6379,
     password: process.env.REDIS_PASSWORD || "",
   },
-};
+} as const;

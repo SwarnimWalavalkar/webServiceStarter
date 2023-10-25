@@ -84,9 +84,9 @@ app.addHook("preHandler", (req, _, next) => {
   return next();
 });
 
-app.addHook("onResponse", (req, reply, done) => {
+app.addHook("onResponse", (_req, reply, done) => {
   logger.info({
-    msg: "request completed",
+    msg: "request completed, done",
     res: { statusCode: reply.raw.statusCode, message: reply.raw.statusMessage },
   });
   done();
@@ -94,13 +94,11 @@ app.addHook("onResponse", (req, reply, done) => {
 
 app.register(v1Routes, { prefix: "/api/v1/starter-service" });
 
-app.get("/ping", (req, reply) => {
-  reply.status(200).send({
-    success: true,
-  });
+app.get("/ping", (_req, reply) => {
+  reply.status(200).send("PONG");
 });
 
-app.setErrorHandler(function (error, request, reply) {
+app.setErrorHandler(function (error, _req, reply) {
   if (reply.raw.statusCode === 500) {
     logger.error({
       err: error,

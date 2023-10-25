@@ -11,10 +11,12 @@
  * @link https://github.com/goldbergyoni/nodebestpractices/blob/master/sections/errorhandling/operationalvsprogrammererror.md
  */
 
-import pino from "pino";
 import logger from "./logger";
+import teardown from "./teardown";
 
 const exitProcess = async () => {
+  await teardown();
+
   process.exit(1);
 };
 
@@ -40,16 +42,13 @@ export const uncaughtExceptionHandler = (err: Error) => {
  * The 'unhandledRejection' event is useful for detecting and keeping track of promises
  * that were rejected whose rejections have not yet been handled.
  *
- * From Node.js v6.6.0: Unhandled Promise rejections emit a process warning. Process does not crash,
- * however in future versions of nodejs process will crash.
- *
  * @link https://nodejs.org/api/process.html#process_event_unhandledrejection
  */
 
 export const unhandledRejectionHandler =
   process.env.NODE_ENV !== "test"
     ? (err: Error) => {
-        logger.fatal({ msg: "Uncaught Exception at", err });
+        logger.fatal({ msg: "Uncaught Rejection at", err });
         exitProcess();
       }
     : () => {};
