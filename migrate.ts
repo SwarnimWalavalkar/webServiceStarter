@@ -3,7 +3,12 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import config from "./src/config";
 
-const sql = postgres(config.db.connectionURI, { max: 1 });
+const {
+  name,
+  db: { user, password, host, port },
+} = config;
+
+const sql = postgres({ user, password, host, port, database: name, max: 1 });
 const db = drizzle(sql);
 
 const main = async () => {
