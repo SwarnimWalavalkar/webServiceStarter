@@ -93,7 +93,7 @@ app.addHook("onResponse", (_req, reply, done) => {
   done();
 });
 
-app.register(v1Routes, { prefix: "/api/v1/starter-service" });
+app.register(v1Routes, { prefix: `/api/v1/${config.port}` });
 
 app.get("/ping", (_req, reply) => {
   reply.status(200).send("PONG");

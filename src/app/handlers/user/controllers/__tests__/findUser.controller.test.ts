@@ -1,11 +1,13 @@
 import app from "../../../..";
 import { it, describe, expect, beforeAll } from "vitest";
 
-describe("GET /api/v1/starter-service/user/find", () => {
+import config from "../../../../../config";
+
+describe("Find User Controller", () => {
   beforeAll(async () => {
     await app.inject({
       method: "POST",
-      path: "/api/v1/starter-service/auth/signup",
+      path: `/api/v1/${config.name}/auth/signup`,
       payload: {
         email: "test@test.com",
         username: "test",
@@ -18,7 +20,7 @@ describe("GET /api/v1/starter-service/user/find", () => {
   it("should return a user", async () => {
     const response = await app.inject({
       method: "GET",
-      path: "/api/v1/starter-service/user/find",
+      path: `/api/v1/${config.name}/user/find`,
       query: {
         username_or_email: "test@test.com",
       },
@@ -33,7 +35,7 @@ describe("GET /api/v1/starter-service/user/find", () => {
   it("should return a 404 on invalid username/email", async () => {
     const response = await app.inject({
       method: "GET",
-      path: "/api/v1/starter-service/user/find",
+      path: `/api/v1/${config.name}/user/find`,
       query: {
         username_or_email: "thisdoesnotexist",
       },

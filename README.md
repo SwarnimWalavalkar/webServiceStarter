@@ -35,10 +35,23 @@ Check if the migrations were applied correctly
 pnpm run db:check
 ```
 
+Run tests
+
+```
+pnpm run test
+```
+
 Start the development server
 
 ```
 pnpm run dev
 ```
 
+# Using as a template
+
+- Find and replace all occurrences of `starter-service` to whatever other name you'd prefer for your project.
+- Update `src/config.ts` for update default app configuration
+
 ---
+
+> This project was bootstrapped from [github.com/SwarnimWalavalkar/webServiceStarter](https://github.com/SwarnimWalavalkar/webServiceStarter)

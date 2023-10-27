@@ -29,7 +29,7 @@ async function startServer() {
     }
 
     logger.info({
-      msg: `starter-service service listening on ${address}`,
+      msg: `${config.name} service listening on ${address}`,
     });
   });
 }

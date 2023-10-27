@@ -1,8 +1,9 @@
 import pino from "pino";
 import als from "../lib/als";
+import config from "../config";
 
 const logger = pino({
-  name: "starter-service",
+  name: config.name,
   mixin() {
     return { traceId: als.getStore() };
   },
