@@ -1,21 +1,24 @@
-import withZod from "../../../util/withZod";
 import { z } from "zod";
 import { getUserByUsernameOrEmail } from "../../../services/user/user.service";
 import { NotFoundError } from "../../../../shared/errors";
+import { FastifyReply, FastifyRequest } from "fastify";
 
-export default withZod({
+const querystring = z
+  .object({
+    username_or_email: z.string(),
+  })
+  .required();
+
+export default {
   schema: {
-    querystring: z
-      .object({
-        username_or_email: z.string(),
-      })
-      .required(),
+    querystring,
   },
 
-  async handler(req, reply) {
-    const { username_or_email } = req.query as {
-      username_or_email: string;
-    };
+  async handler(
+    req: FastifyRequest<{ Querystring: z.infer<typeof querystring> }>,
+    reply: FastifyReply
+  ) {
+    const { username_or_email } = req.query;
 
     const foundUserRes = await getUserByUsernameOrEmail(username_or_email);
 
@@ -33,4 +36,4 @@ export default withZod({
 
     return reply.send({ user });
   },
-});
+};

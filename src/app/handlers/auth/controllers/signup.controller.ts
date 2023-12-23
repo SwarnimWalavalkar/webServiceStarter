@@ -1,7 +1,4 @@
-import withZod from "../../../util/withZod";
-import { db } from "../../../../dependencies/db";
-import { User, UserInsert, users } from "../../../../schema/user";
-import { sql } from "drizzle-orm";
+import { UserInsert } from "../../../../schema/user";
 import * as argon2 from "argon2";
 import { z } from "zod";
 import { userSignupEvent } from "../../../../hermes/events/userSignup";
@@ -10,30 +7,31 @@ import {
   getUserByUsernameOrEmail,
 } from "../../../services/user/user.service";
 import { BadRequest } from "../../../../shared/errors";
+import { FastifyReply, FastifyRequest } from "fastify";
 
-export default withZod({
+const body = z
+  .object({
+    name: z.string(),
+    email: z.string().email(),
+    password: z.string().min(8).max(100),
+    username: z
+      .string()
+      .regex(/^(\w){1,15}$/)
+      .min(1)
+      .max(15)
+      .toLowerCase(),
+  })
+  .required();
+
+export default {
   schema: {
-    body: z
-      .object({
-        name: z.string(),
-        email: z.string().email(),
-        password: z.string().min(8).max(100),
-        username: z
-          .string()
-          .regex(/^(\w){1,15}$/)
-          .min(1)
-          .max(15)
-          .toLowerCase(),
-      })
-      .required(),
+    body,
   },
-  async handler(req, reply) {
-    const { email, name, username, password } = req.body as {
-      email: string;
-      name: string;
-      username: string;
-      password: string;
-    };
+  handler: async (
+    req: FastifyRequest<{ Body: z.infer<typeof body> }>,
+    reply: FastifyReply
+  ) => {
+    const { email, name, username, password } = req.body;
 
     const foundUserRes = await getUserByUsernameOrEmail(email);
 
@@ -64,4 +62,4 @@ export default withZod({
 
     return reply.status(201).send({ success: true });
   },
-});
+};

@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply, FastifyError } from "fastify";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { JWT } from "@fastify/jwt";
 import { User } from "../../schema/user";
 

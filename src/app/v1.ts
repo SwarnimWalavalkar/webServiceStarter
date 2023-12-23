@@ -1,8 +1,4 @@
-import type {
-  FastifyError,
-  FastifyInstance,
-  FastifyPluginOptions,
-} from "fastify";
+import type { FastifyError, FastifyPluginOptions } from "fastify";
 
 import authRoutes from "./handlers/auth/auth.routes";
 import userRoutes from "./handlers/user/user.routes";
@@ -10,9 +6,10 @@ import meRoutes from "./handlers/me/me.routes";
 import hermesRoutes from "./handlers/hermes/hermes.routes";
 
 import authRequiredHook from "./hooks/authRequired";
+import { FastifyZodInstance } from "./util/fastifyZodTypeProvider";
 
 export default async function v1Routes(
-  app: FastifyInstance,
+  app: FastifyZodInstance,
   _: FastifyPluginOptions,
   done: (err?: FastifyError) => void
 ) {

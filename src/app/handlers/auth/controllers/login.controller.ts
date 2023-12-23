@@ -1,23 +1,25 @@
 import * as argon2 from "argon2";
-import withZod from "../../../util/withZod";
 import { z } from "zod";
 import { getUserByUsernameOrEmail } from "../../../services/user/user.service";
-import { BadRequest, NotFoundError } from "../../../../shared/errors";
+import { APIError, BadRequest, NotFoundError } from "../../../../shared/errors";
+import { FastifyReply, FastifyRequest } from "fastify";
 
-export default withZod({
+const body = z
+  .object({
+    username_or_email: z.string(),
+    password: z.string(),
+  })
+  .required();
+
+export default {
   schema: {
-    body: z
-      .object({
-        username_or_email: z.string(),
-        password: z.string(),
-      })
-      .required(),
+    body,
   },
-  async handler(req, reply) {
-    const { username_or_email, password } = req.body as {
-      username_or_email: string;
-      password: string;
-    };
+  async handler(
+    req: FastifyRequest<{ Body: z.infer<typeof body> }>,
+    reply: FastifyReply
+  ) {
+    const { username_or_email, password } = req.body;
 
     const foundUserRes = await getUserByUsernameOrEmail(username_or_email);
 
@@ -39,7 +41,11 @@ export default withZod({
 
     const token = req.jwt.sign(user);
 
-    if (!token) return reply.internalServerError("ERROR_GENERATING_TOKEN");
+    if (!token)
+      throw new APIError(
+        "Internal Server Error",
+        "Error generating auth token"
+      );
 
     /** Secure Options */
     // reply.setCookie("Authorization", token, {
@@ -53,4 +59,4 @@ export default withZod({
 
     return reply.send({ user });
   },
-});
+};

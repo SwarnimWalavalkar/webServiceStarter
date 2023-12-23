@@ -15,6 +15,10 @@ import { JWT } from "@fastify/jwt";
 import config from "../config";
 import { User } from "../schema/user";
 import { APIError } from "../shared/errors";
+import {
+  validatorCompiler,
+  ZodTypeProvider,
+} from "./util/fastifyZodTypeProvider";
 
 process.on("uncaughtException", uncaughtExceptionHandler);
 process.on("unhandledRejection", unhandledRejectionHandler);
@@ -37,6 +41,10 @@ const app = fastify({
   trustProxy: true,
   disableRequestLogging: true,
 });
+
+app.setValidatorCompiler(validatorCompiler);
+
+app.withTypeProvider<ZodTypeProvider>();
 
 app.register(fastifyPlugin, {
   useHeader: true,

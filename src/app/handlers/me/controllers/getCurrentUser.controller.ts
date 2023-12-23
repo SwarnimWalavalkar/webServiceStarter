@@ -1,7 +1,7 @@
-import withZod from "../../../util/withZod";
+import { FastifyReply, FastifyRequest } from "fastify";
 
-export default withZod({
-  async handler(req, reply) {
+export default {
+  async handler(req: FastifyRequest, reply: FastifyReply) {
     return reply.send({ user: req.user });
   },
-});
+};

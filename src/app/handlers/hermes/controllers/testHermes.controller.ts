@@ -1,21 +1,24 @@
+import { FastifyRequest, FastifyReply } from "fastify";
 import { userSignupEvent } from "../../../../hermes/events/userSignup";
 import { primeNumberService } from "../../../../hermes/reply/getPrimeNumbers";
-import withZod from "../../../util/withZod";
 import { z } from "zod";
 
-export default withZod({
+const querystring = z
+  .object({
+    name: z.string(),
+  })
+  .required();
+
+export default {
   schema: {
-    querystring: z
-      .object({
-        name: z.string(),
-      })
-      .required(),
+    querystring,
   },
 
-  async handler(req, reply) {
-    const { name } = req.query as {
-      name: string;
-    };
+  async handler(
+    req: FastifyRequest<{ Querystring: z.infer<typeof querystring> }>,
+    reply: FastifyReply
+  ) {
+    const { name } = req.query;
 
     await userSignupEvent.publish({
       userId: 124,
@@ -29,4 +32,4 @@ export default withZod({
 
     return reply.status(200).send({ primeNumbers });
   },
-});
+};
