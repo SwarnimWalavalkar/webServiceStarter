@@ -18,7 +18,10 @@ import { APIError } from "../shared/errors";
 import {
   validatorCompiler,
   ZodTypeProvider,
+  jsonSchemaTransform,
 } from "./util/fastifyZodTypeProvider";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUI from "@fastify/swagger-ui";
 
 process.on("uncaughtException", uncaughtExceptionHandler);
 process.on("unhandledRejection", unhandledRejectionHandler);
@@ -101,7 +104,23 @@ app.addHook("onResponse", (_req, reply, done) => {
   done();
 });
 
-app.register(v1Routes, { prefix: `/api/v1/${config.name}` });
+app.register(fastifySwagger, {
+  openapi: {
+    info: {
+      title: config.name,
+      description: `${config.name} API spec`,
+      version: config.version,
+    },
+    servers: [],
+  },
+  transform: jsonSchemaTransform,
+});
+
+app.register(fastifySwaggerUI, {
+  routePrefix: "/api/v1/docs",
+});
+
+app.register(v1Routes, { prefix: `/api/${config.version}/${config.name}` });
 
 app.get("/ping", (_req, reply) => {
   reply.status(200).send("PONG");

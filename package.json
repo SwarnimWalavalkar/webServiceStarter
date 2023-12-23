@@ -33,6 +33,7 @@
     "@fastify/jwt": "^7.2.0",
     "@fastify/sensible": "^5.2.0",
     "@fastify/swagger": "^8.9.0",
+    "@fastify/swagger-ui": "2.0.1",
     "@swarnim/hermes": "1.0.0",
     "argon2": "0.31.0",
     "close-with-grace": "1.2.0",
@@ -46,6 +47,7 @@
     "postgres": "3.3.5",
     "uuid": "9.0.0",
     "zod": "3.22.2",
+    "zod-to-json-schema": "3.22.3",
     "zod-validation-error": "1.5.0"
   }
 }

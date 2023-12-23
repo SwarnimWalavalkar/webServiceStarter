@@ -2,6 +2,7 @@
 
 export default {
   name: "starter-service",
+  version: "v1",
   port: process.env.PORT || 4000,
   db: {
     user: process.env.DB_USER || "postgres",
