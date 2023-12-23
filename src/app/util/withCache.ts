@@ -1,6 +1,6 @@
 import { redis } from "../../dependencies/redis";
 
-type withCahcePropType<T> = {
+type withCachePropType<T> = {
   key: string;
   ex: number;
   fn: () => Promise<T>;
@@ -10,7 +10,7 @@ export default async function withCache<T>({
   key,
   ex,
   fn,
-}: withCahcePropType<T>): Promise<T> {
+}: withCachePropType<T>): Promise<T> {
   let value: T | null = JSON.parse((await redis.get(key)) || "null");
 
   if (!value) {
