@@ -54,10 +54,4 @@ pnpm run dev
 
 ---
 
-# TODOs
-
-- [x] typesafety for routers
-- [x] swagger docs autogen
-- [ ] better migrations tool
-
 > This project was bootstrapped from [github.com/SwarnimWalavalkar/webServiceStarter](https://github.com/SwarnimWalavalkar/webServiceStarter)
