@@ -8,7 +8,7 @@ import { ZodSchema } from "zod";
 import { fromZodError } from "zod-validation-error";
 
 export default function withZod(opts: RouteShorthandOptionsWithHandler) {
-  // @ts-ignore
+  // @ts-expect-error
   opts.validatorCompiler = ({
     schema,
     method,

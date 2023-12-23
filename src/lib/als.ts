@@ -35,7 +35,7 @@ function wrapEmitter(emitter: any, asyncResource: AsyncResource) {
             handler,
             emitter
           );
-          // @ts-ignore
+          // @ts-expect-error
           return original.call(this, name, handler[wrappedSymbol]);
         }
     );
@@ -47,7 +47,7 @@ function wrapEmitter(emitter: any, asyncResource: AsyncResource) {
       method,
       (original: any) =>
         function (name: any, handler: any) {
-          // @ts-ignore
+          // @ts-expect-error
           return original.call(this, name, handler[wrappedSymbol] || handler);
         }
     );
@@ -93,9 +93,9 @@ export const fastifyPlugin = (fastify: any, options: any, next: any) => {
   next();
 };
 
-//@ts-ignore
+//@ts-expect-error
 fastifyPlugin[Symbol.for("skip-override")] = true;
-//@ts-ignore
+//@ts-expect-error
 fastifyPlugin[Symbol.for("fastify.display-name")] = pluginName;
 
 export default als;
