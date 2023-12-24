@@ -1,13 +1,13 @@
 import { FastifyPluginOptions } from "fastify";
 import getCurrentUserController from "./controllers/getCurrentUser.controller";
-import { FastifyZodInstance } from "../../util/fastifyZodTypeProvider";
+import { FastifyZodInstance } from "../../types/fastify";
 
 export default function routes(
   app: FastifyZodInstance,
   _: FastifyPluginOptions,
   done: (err?: Error | undefined) => void
 ) {
-  app.get("/", getCurrentUserController);
+  app.get("/", { preHandler: [app.authRequired], ...getCurrentUserController });
 
   done();
 }

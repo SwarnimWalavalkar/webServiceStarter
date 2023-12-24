@@ -1,8 +1,9 @@
-//@ts-nocheck
+import constants from "./constants";
 
 export default {
   name: "starter-service",
-  version: "v1",
+  version: process.env.VERSION || "v1",
+  domain: process.env.DOMAIN || "localhost",
   port: process.env.PORT || 4000,
   db: {
     user: process.env.DB_USER || "postgres",
@@ -18,4 +19,5 @@ export default {
     port: Number(process.env.REDIS_PORT) || 6379,
     password: process.env.REDIS_PASSWORD || "",
   },
+  constants,
 } as const;

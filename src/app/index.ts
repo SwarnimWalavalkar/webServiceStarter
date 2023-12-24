@@ -1,7 +1,6 @@
 import fastify from "fastify";
 import helmet from "@fastify/helmet";
 import sensible from "@fastify/sensible";
-import fjwt from "@fastify/jwt";
 import cookie, { FastifyCookieOptions } from "@fastify/cookie";
 
 import {
@@ -11,32 +10,20 @@ import {
 import { fastifyPlugin } from "../lib/als";
 import logger from "../utils/logger";
 import v1Routes from "./v1";
-import { JWT } from "@fastify/jwt";
 import config from "../config";
 import { User } from "../schema/user";
 import { APIError } from "../shared/errors";
 import {
   validatorCompiler,
-  ZodTypeProvider,
   jsonSchemaTransform,
 } from "./util/fastifyZodTypeProvider";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
+import authRequiredHook from "./hooks/authRequired";
+import { ZodTypeProvider } from "./types/fastify";
 
 process.on("uncaughtException", uncaughtExceptionHandler);
 process.on("unhandledRejection", unhandledRejectionHandler);
-
-declare module "fastify" {
-  interface FastifyRequest {
-    jwt: JWT;
-  }
-}
-
-declare module "@fastify/jwt" {
-  interface FastifyJWT {
-    user: Omit<User, "password">;
-  }
-}
 
 const app = fastify({
   ignoreTrailingSlash: true,
@@ -58,17 +45,11 @@ app.register(helmet);
 
 app.register(sensible);
 
-app.register(fjwt, {
-  secret: config.jwt.tokenSecret,
-  cookie: {
-    cookieName: "Authorization",
-    signed: false,
-  },
-});
-
 app.register(cookie, {
   secret: config.jwt.tokenSecret,
 } as FastifyCookieOptions);
+
+app.decorate("authRequired", authRequiredHook);
 
 app.addHook("onRequest", (req, reply, done) => {
   reply.header("Pragma", "no-cache");
@@ -89,11 +70,6 @@ app.addHook("onRequest", (req, reply, done) => {
     msg: "request received",
   });
   done();
-});
-
-app.addHook("preHandler", (req, _, next) => {
-  req.jwt = app.jwt;
-  return next();
 });
 
 app.addHook("onResponse", (_req, reply, done) => {

@@ -1,38 +1,14 @@
 import logger from "../../utils/logger";
-import {
-  FastifyTypeProvider,
-  FastifyInstance,
-  RawServerDefault,
-  RawRequestDefaultExpression,
-  RawReplyDefaultExpression,
-  FastifyBaseLogger,
-  FastifySchemaCompiler,
-  FastifySchema,
-} from "fastify";
-import z, { ZodTypeAny, ZodAny, ZodError } from "zod";
+import { FastifySchemaCompiler } from "fastify";
+import { ZodAny, ZodError } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { fromZodError } from "zod-validation-error";
+import { Schema } from "../types/fastify";
 
 const zodToJsonSchemaOptions = {
   target: "openApi3",
   $refStrategy: "none",
 } as const;
-
-export interface ZodTypeProvider extends FastifyTypeProvider {
-  output: this["input"] extends ZodTypeAny ? z.infer<this["input"]> : never;
-}
-
-export type FastifyZodInstance = FastifyInstance<
-  RawServerDefault,
-  RawRequestDefaultExpression<RawServerDefault>,
-  RawReplyDefaultExpression<RawServerDefault>,
-  FastifyBaseLogger,
-  ZodTypeProvider
->;
-
-interface Schema extends FastifySchema {
-  hide?: boolean;
-}
 
 export const validatorCompiler: FastifySchemaCompiler<ZodAny> =
   ({ schema }) =>

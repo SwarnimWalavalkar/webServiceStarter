@@ -1,8 +1,16 @@
 import * as argon2 from "argon2";
 import { z } from "zod";
 import { getUserByUsernameOrEmail } from "../../../services/user/user.service";
-import { APIError, BadRequest, NotFoundError } from "../../../../shared/errors";
+import { BadRequest, NotFoundError } from "../../../../shared/errors";
 import { FastifyReply, FastifyRequest } from "fastify";
+import config from "../../../../config";
+import { base64URLEncode } from "../../../../utils/base64";
+import { sign } from "../../../../utils/jwt";
+import {
+  AccessTokenJWTPayload,
+  AuthCookiePayload,
+  RefreshTokenJWTPayload,
+} from "../../../../shared/types";
 
 const body = z
   .object({
@@ -19,6 +27,10 @@ export default {
     req: FastifyRequest<{ Body: z.infer<typeof body> }>,
     reply: FastifyReply
   ) {
+    const {
+      JWT_TOKEN_TYPES: { REFRESH_TOKEN, ACCESS_TOKEN },
+      AUTH_COOKIE_NAME,
+    } = config.constants;
     const { username_or_email, password } = req.body;
 
     const foundUserRes = await getUserByUsernameOrEmail(username_or_email);
@@ -36,26 +48,35 @@ export default {
       password: _password,
       created_at: _created_at,
       updated_at: _updated_at,
+      name: _name,
+      email: _email,
       ...user
     } = foundUserRes.value;
 
-    const token = req.jwt.sign(user);
+    const accessToken = sign<AccessTokenJWTPayload>(ACCESS_TOKEN, {
+      user,
+      type: ACCESS_TOKEN,
+    });
 
-    if (!token)
-      throw new APIError(
-        "Internal Server Error",
-        "Error generating auth token"
-      );
+    const refreshToken = sign<RefreshTokenJWTPayload>(REFRESH_TOKEN, {
+      user,
+      type: REFRESH_TOKEN,
+    });
 
-    /** Secure Options */
-    // reply.setCookie("Authorization", token, {
-    //   domain: "swarnimwalavalkar.com",
-    //   secure: true,
-    //   httpOnly: true,
-    //   sameSite: true,
-    // });
+    const cookieObj: AuthCookiePayload = {
+      accessToken,
+      refreshToken,
+    };
 
-    reply.setCookie("Authorization", token, { path: "/" });
+    const cookieBuffer = base64URLEncode(cookieObj);
+
+    reply.setCookie(AUTH_COOKIE_NAME, cookieBuffer, {
+      domain: config.domain,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: true,
+    });
 
     return reply.send({ user });
   },

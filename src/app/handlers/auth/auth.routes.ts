@@ -1,7 +1,7 @@
 import { FastifyPluginOptions } from "fastify";
 import loginController from "./controllers/login.controller";
 import signupController from "./controllers/signup.controller";
-import { FastifyZodInstance } from "../../util/fastifyZodTypeProvider";
+import { FastifyZodInstance } from "../../types/fastify";
 
 export default function routes(
   app: FastifyZodInstance,

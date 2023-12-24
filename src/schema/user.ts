@@ -22,6 +22,7 @@ export const users = pgTable("users", {
 
 export type User = InferSelectModel<typeof users>;
 export type UserInsert = InferInsertModel<typeof users>;
+export type CookieUser = Pick<User, "username" | "roles">;
 
 export type UserAttributes = Omit<
   User,

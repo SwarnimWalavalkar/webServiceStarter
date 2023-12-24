@@ -1,26 +1,75 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { JWT } from "@fastify/jwt";
-import { User } from "../../schema/user";
-
-declare module "fastify" {
-  interface FastifyRequest {
-    jwt: JWT;
-  }
-}
-
-declare module "@fastify/jwt" {
-  interface FastifyJWT {
-    user: Omit<User, "password">;
-  }
-}
+import { base64URLDecode, base64URLEncode } from "../../utils/base64";
+import { BadRequest } from "../../shared/errors";
+import { sign, verify } from "../../utils/jwt";
+import config from "../../config";
+import {
+  AccessTokenJWTPayload,
+  AuthCookiePayload,
+  JWTVerify,
+  RefreshTokenJWTPayload,
+} from "../../shared/types";
+import { CookieUser } from "../../schema/user";
 
 export default async function authRequiredHook(
   req: FastifyRequest,
   reply: FastifyReply
 ) {
+  const {
+    AUTH_COOKIE_NAME,
+    JWT_TOKEN_TYPES: { REFRESH_TOKEN, ACCESS_TOKEN },
+  } = config.constants;
   try {
-    await req.jwtVerify();
-  } catch (e) {
-    return reply.send(e);
+    const cookie = req.cookies[AUTH_COOKIE_NAME];
+    if (!cookie) {
+      throw new BadRequest("Authorization cookie not found");
+    }
+
+    const decodedCookie = base64URLDecode<AuthCookiePayload>(cookie);
+
+    const { accessToken, refreshToken } = decodedCookie;
+
+    let user: CookieUser;
+    const accessTokenVerification =
+      verify<JWTVerify<AccessTokenJWTPayload>>(accessToken);
+
+    if (accessTokenVerification) {
+      user = accessTokenVerification.user;
+    } else {
+      reply.clearCookie(AUTH_COOKIE_NAME);
+
+      const refreshTokenVerification =
+        verify<JWTVerify<RefreshTokenJWTPayload>>(refreshToken);
+
+      if (!refreshTokenVerification) {
+        throw new BadRequest("Refresh Token Expired");
+      }
+
+      user = refreshTokenVerification.user;
+
+      const newAccessToken = sign<AccessTokenJWTPayload>(ACCESS_TOKEN, {
+        user,
+        type: ACCESS_TOKEN,
+      });
+
+      const cookieObj: AuthCookiePayload = {
+        accessToken: newAccessToken,
+        refreshToken,
+      };
+
+      const cookieBuffer = base64URLEncode(cookieObj);
+
+      reply.setCookie(AUTH_COOKIE_NAME, cookieBuffer, {
+        domain: config.domain,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: true,
+      });
+    }
+
+    req.user = user;
+  } catch (error) {
+    throw error;
   }
 }

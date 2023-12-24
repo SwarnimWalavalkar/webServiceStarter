@@ -5,8 +5,7 @@ import userRoutes from "./handlers/user/user.routes";
 import meRoutes from "./handlers/me/me.routes";
 import hermesRoutes from "./handlers/hermes/hermes.routes";
 
-import authRequiredHook from "./hooks/authRequired";
-import { FastifyZodInstance } from "./util/fastifyZodTypeProvider";
+import { FastifyZodInstance } from "./types/fastify";
 
 export default async function v1Routes(
   app: FastifyZodInstance,
@@ -16,11 +15,7 @@ export default async function v1Routes(
   app.register(authRoutes, { prefix: "/auth" });
   app.register(userRoutes, { prefix: "/user" });
   app.register(hermesRoutes, { prefix: "/hermes" });
+  app.register(meRoutes, { prefix: "/me" });
 
-  app.register((app, _, done) => {
-    app.addHook("preHandler", authRequiredHook);
-    app.register(meRoutes, { prefix: "/me" });
-    done();
-  });
   done();
 }
