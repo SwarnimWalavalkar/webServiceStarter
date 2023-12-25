@@ -14,5 +14,3 @@ export interface AuthCookiePayload {
   accessToken: string;
   refreshToken: string;
 }
-
-export type JWTVerify<T> = T & { iat: number; exp: number };

@@ -34,7 +34,9 @@ export const sign = <T extends Record<PropertyKey, any>>(
   }
 };
 
-export const verify = <T>(token: string): T | null => {
+export const verify = <T>(
+  token: string
+): (T & { iat: number; exp: number }) | null => {
   try {
     return verifier(token);
   } catch (error: any) {

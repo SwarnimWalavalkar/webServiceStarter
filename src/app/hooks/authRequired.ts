@@ -6,7 +6,6 @@ import config from "../../config";
 import {
   AccessTokenJWTPayload,
   AuthCookiePayload,
-  JWTVerify,
   RefreshTokenJWTPayload,
 } from "../../shared/types";
 import { CookieUser } from "../../schema/user";
@@ -17,7 +16,7 @@ export default async function authRequiredHook(
 ) {
   const {
     AUTH_COOKIE_NAME,
-    JWT_TOKEN_TYPES: { REFRESH_TOKEN, ACCESS_TOKEN },
+    JWT_TOKEN_TYPES: { ACCESS_TOKEN },
   } = config.constants;
   try {
     const cookie = req.cookies[AUTH_COOKIE_NAME];
@@ -30,8 +29,7 @@ export default async function authRequiredHook(
     const { accessToken, refreshToken } = decodedCookie;
 
     let user: CookieUser;
-    const accessTokenVerification =
-      verify<JWTVerify<AccessTokenJWTPayload>>(accessToken);
+    const accessTokenVerification = verify<AccessTokenJWTPayload>(accessToken);
 
     if (accessTokenVerification) {
       user = accessTokenVerification.user;
@@ -39,7 +37,7 @@ export default async function authRequiredHook(
       reply.clearCookie(AUTH_COOKIE_NAME);
 
       const refreshTokenVerification =
-        verify<JWTVerify<RefreshTokenJWTPayload>>(refreshToken);
+        verify<RefreshTokenJWTPayload>(refreshToken);
 
       if (!refreshTokenVerification) {
         throw new BadRequest("Refresh Token Expired");
