@@ -4,7 +4,7 @@
   "scripts": {
     "build": "tsc",
     "check": "tsc --noEmit",
-    "dev": "NODE_ENV=development npx tsx watch src/index.ts | npx pino-pretty",
+    "dev": "NODE_ENV=development tsx watch --clear-screen=false src/index.ts | pino-pretty",
     "start": "node dist/src/index.js",
     "test": "vitest --run",
     "db:generate": "drizzle-kit generate:pg",
