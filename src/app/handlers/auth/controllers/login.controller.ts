@@ -11,6 +11,7 @@ import {
   AuthCookiePayload,
   RefreshTokenJWTPayload,
 } from "../../../../shared/types";
+import { CookieUser } from "../../../../schema/user";
 
 const body = z
   .object({
@@ -43,15 +44,12 @@ export default {
 
     if (!match) throw new BadRequest("INVALID_CREDENTIALS");
 
-    const {
-      id: _id,
-      password: _password,
-      created_at: _created_at,
-      updated_at: _updated_at,
-      name: _name,
-      email: _email,
-      ...user
-    } = foundUserRes.value;
+    const foundUser = foundUserRes.value;
+
+    const user: CookieUser = {
+      uuid: foundUser.uuid,
+      roles: foundUser.roles,
+    };
 
     const accessToken = sign<AccessTokenJWTPayload>(ACCESS_TOKEN, {
       user,

@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS "users" (
 	"id" serial NOT NULL,
+	"uuid" text DEFAULT REPLACE(gen_random_uuid()::text, '-', '' ),
 	"name" text NOT NULL,
 	"username" text NOT NULL,
 	"email" text NOT NULL,

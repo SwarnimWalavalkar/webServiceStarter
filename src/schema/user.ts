@@ -2,11 +2,13 @@ import {
   InferInsertModel,
   InferSelectModel,
   getTableColumns,
+  sql,
 } from "drizzle-orm";
 import { serial, text, timestamp, pgTable } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
   id: serial("id"),
+  uuid: text("uuid").default(sql`REPLACE(gen_random_uuid()::text, '-', '' )`),
   name: text("name").notNull(),
   username: text("username").notNull(),
   email: text("email").notNull(),
@@ -22,7 +24,7 @@ export const users = pgTable("users", {
 
 export type User = InferSelectModel<typeof users>;
 export type UserInsert = InferInsertModel<typeof users>;
-export type CookieUser = Pick<User, "username" | "roles">;
+export type CookieUser = Pick<User, "uuid" | "roles">;
 
 export type UserAttributes = Omit<
   User,
@@ -32,6 +34,7 @@ export type UserAttributes = Omit<
 export const userAttrPartialSelectColumns: {
   [k in keyof UserAttributes]: true;
 } = {
+  uuid: true,
   name: true,
   username: true,
   email: true,

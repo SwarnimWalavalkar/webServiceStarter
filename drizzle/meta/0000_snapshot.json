@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "pg",
-  "id": "74736c47-273b-4050-99c5-39427b9d2129",
+  "id": "fa0a6dd2-5866-4562-926d-1e6033817f6d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "users": {
@@ -13,6 +13,13 @@
           "type": "serial",
           "primaryKey": false,
           "notNull": true
+        },
+        "uuid": {
+          "name": "uuid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "REPLACE(gen_random_uuid()::text, '-', '' )"
         },
         "name": {
           "name": "name",
