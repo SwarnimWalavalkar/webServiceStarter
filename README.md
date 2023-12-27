@@ -26,13 +26,7 @@ pnpm run docker:up
 Apply database migrations
 
 ```
-pnpm run db:migrate
-```
-
-Check if the migrations were applied correctly
-
-```
-pnpm run db:check
+pnpm run db:migrate up
 ```
 
 Run tests

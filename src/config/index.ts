@@ -15,7 +15,7 @@ export default {
     tokenSecret: process.env.JWT_TOKEN_SECRET || "supersecretrandomstring",
   },
   redis: {
-    host: process.env.REDIS_HOST || "0.0.0.0",
+    host: process.env.REDIS_HOST || "localhost",
     port: Number(process.env.REDIS_PORT) || 6379,
     password: process.env.REDIS_PASSWORD || "",
   },
