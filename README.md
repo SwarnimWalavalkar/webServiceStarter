@@ -44,7 +44,7 @@ pnpm run dev
 # Using as a template
 
 - Find and replace all occurrences of `starter-service` to whatever other name you'd prefer for your project.
-- Update `src/config.ts` to update default app configuration
+- Update [`src/config/index.ts`](src/config/index.ts) to update default app configuration
 
 ---
 
