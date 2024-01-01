@@ -33,6 +33,7 @@
     "@swarnim/hermes": "1.0.0",
     "argon2": "0.31.0",
     "close-with-grace": "1.2.0",
+    "dotenv": "16.3.1",
     "drizzle-orm": "0.28.5",
     "fast-jwt": "3.3.2",
     "fastify": "^4.22.0",
