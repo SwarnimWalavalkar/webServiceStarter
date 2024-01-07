@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { base64URLDecode, base64URLEncode } from "../../utils/base64";
-import { BadRequest } from "../../shared/errors";
+import { BadRequest, Unauthorized } from "../../shared/errors";
 import { sign, verify } from "../../utils/jwt";
 import config from "../../config";
 import {
@@ -21,7 +21,7 @@ export default async function authRequiredHook(
   try {
     const cookie = req.cookies[AUTH_COOKIE_NAME];
     if (!cookie) {
-      throw new BadRequest("Authorization cookie not found");
+      throw new Unauthorized("Authorization cookie not found");
     }
 
     const decodedCookie = base64URLDecode<AuthCookiePayload>(cookie);
@@ -40,7 +40,7 @@ export default async function authRequiredHook(
         verify<RefreshTokenJWTPayload>(refreshToken);
 
       if (!refreshTokenVerification) {
-        throw new BadRequest("Refresh Token Expired");
+        throw new Unauthorized("Refresh Token Expired");
       }
 
       user = refreshTokenVerification.user;

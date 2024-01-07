@@ -39,7 +39,8 @@ describe("User Service", () => {
     expect(createdUserRes.ok).toBe(true);
     assertResultSuccess(createdUserRes);
 
-    const { created_at, updated_at, ...createdUser } = createdUserRes.value;
+    const { created_at, updated_at, id, uuid, ...createdUser } =
+      createdUserRes.value;
 
     expect(createdUser).toMatchSnapshot();
   });

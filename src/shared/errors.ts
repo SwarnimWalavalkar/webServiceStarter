@@ -90,3 +90,13 @@ export class BadRequest extends APIError {
     this.name = this.constructor.name;
   }
 }
+
+export class Unauthorized extends APIError {
+  constructor(message: string, ignoreLog = false) {
+    super("Unauthorized", message, 401, ignoreLog);
+
+    Object.setPrototypeOf(this, APIError.prototype);
+
+    this.name = this.constructor.name;
+  }
+}

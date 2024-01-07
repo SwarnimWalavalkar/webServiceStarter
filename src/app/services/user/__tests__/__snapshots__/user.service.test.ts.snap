@@ -3,7 +3,6 @@
 exports[`User Service > create user 1`] = `
 {
   "email": "test@test.com",
-  "id": 4,
   "name": "Test User",
   "password": "passwordHash",
   "roles": [
