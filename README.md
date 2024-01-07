@@ -13,21 +13,25 @@ An ever evolving starting point for wonderful ideas... ✨
 
 ## Setting Up
 
+Setup .env from the default values in [.env.development](.env.development)
+
+```
+cp .env.development .env
+```
+
+Install node dependencies
+
 ```
 pnpm i
 ```
 
-Run dependencies
+Start dependencies in docker
 
 ```
-pnpm run docker:up
+make start
 ```
 
-Apply database migrations
-
-```
-pnpm run db:migrate up
-```
+## Running the service
 
 Run tests
 
@@ -40,6 +44,31 @@ Start the development server
 ```
 pnpm run dev
 ```
+
+Or, start the service alongside all dependencies in docker
+
+```
+make start-all
+```
+
+The service will start listening on port `4001`
+
+## Managing database Migrations
+
+Migrations files are tracked in the [/migrations](/migrations) directory
+
+```
+make migrate [...args]
+
+up [N]        Apply all or N up migrations
+down [N]      Apply all or N down migrations
+
+create NAME   Create a set of timestamped up/down migrations titled NAME
+```
+
+Migrations are internally handled with [https://github.com/golang-migrate/migrate](https://github.com/golang-migrate/migrate)
+
+---
 
 # Using as a template
 

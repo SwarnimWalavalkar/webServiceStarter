@@ -6,12 +6,7 @@
     "check": "tsc --noEmit",
     "dev": "NODE_ENV=development tsx watch --clear-screen=false src/index.ts | pino-pretty",
     "start": "node dist/src/index.js",
-    "test": "vitest --run",
-    "db:migrate": "npx zx ./scripts/migrate.mjs",
-    "docker:down": "docker compose -f docker/compose.yml down",
-    "docker:up": "docker compose -f docker/compose.yml up -d",
-    "docker:kill": "docker compose -f docker/compose.yml down -v --remove-orphans",
-    "docker:restart": "pnpm run docker:down && pnpm run docker:up"
+    "test": "vitest --run"
   },
   "devDependencies": {
     "@types/node": "^20.5.7",
