@@ -6,11 +6,9 @@ ifeq (migrate,$(firstword $(MAKECMDGOALS)))
   $(eval $(RUN_ARGS):;@:)
 endif
 
-restart:
-	stop start
+restart: stop start
 
-restart-all:
-	stop start-all
+restart-all: stop start-all
 
 stop:
 	docker compose -f docker/dependencies.yml -f docker/app.yml --env-file .env down -v --remove-orphans
