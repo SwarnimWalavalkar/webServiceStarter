@@ -16,7 +16,7 @@ import { APIError } from "../shared/errors";
 import {
   validatorCompiler,
   jsonSchemaTransform,
-} from "./util/fastifyZodTypeProvider";
+} from "./utils/fastifyZodTypeProvider";
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import authRequiredHook from "./hooks/authRequired";
