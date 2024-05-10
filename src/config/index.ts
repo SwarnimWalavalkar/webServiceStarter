@@ -19,5 +19,15 @@ export default {
     port: Number(process.env.REDIS_PORT ?? 6379),
     password: process.env.REDIS_PASSWORD ?? "",
   },
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY ?? "",
+    embeddings: {
+      model: process.env.OPENAI_EMBEDDINGS_MODEL ?? "text-embedding-3-small",
+      dimension: Number(process.env.OPENAI_EMBEDDINGS_DIMENSION ?? 1536),
+    },
+    chatCompletions: {
+      model: process.env.OPENAI_CHAT_COMPLETIONS_MODEL ?? "gpt-3.5-turbo",
+    },
+  },
   constants,
 } as const;
