@@ -26,7 +26,7 @@
     "@fastify/swagger": "^8.9.0",
     "@fastify/swagger-ui": "2.0.1",
     "@swarnim/hermes": "1.0.0",
-    "argon2": "0.31.0",
+    "argon2": "0.40.1",
     "axios": "1.6.8",
     "close-with-grace": "1.2.0",
     "dotenv": "16.3.1",
